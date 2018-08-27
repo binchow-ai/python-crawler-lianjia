@@ -1,7 +1,10 @@
 # 爬虫主程序
+import csv
+import datetime
 import logging
 import re
 import time
+from collections import OrderedDict
 
 import requests
 from pyquery import PyQuery
@@ -82,13 +85,13 @@ def parse_item_page(html, url):
             'metro': pq('div.zf-room > p:eq(4)').text().strip().replace('地铁：', ''),
             'housing_estate': pq('div.zf-room > p:eq(5) > a:first').text().strip(),
             'housing_estate_link': pq('div.zf-room > p:eq(5) > a:first').attr('href'),
-            'location': [i.text().strip() for i in pq('div.zf-room > p:eq(6) > a').items()],
+            'location': tuple([i.text().strip() for i in pq('div.zf-room > p:eq(6) > a').items()]),
             'publish_at': pq('div.zf-room > p:eq(7)').text().strip().replace('时间：', ''),
             'broker': pq('div.brokerName > a').text().strip(),
             'broker_homepage': pq('div.brokerName > a').attr('href'),
             'number': pq('span.houseNum').text().strip().replace('链家编号：', '')}
 
-    return data
+    return OrderedDict(data)
 
 
 def process(data):
@@ -97,12 +100,22 @@ def process(data):
     :param data:
     :return:
     """
-    # TODO 数据清洗
+    # 数据基本处理
+    if 'selling_point' in data and data['selling_point'] == '这个经纪人很懒，没写核心卖点':
+        data['selling_point'] = None
+    if 'metro' in data and data['metro'] == '暂无数据':
+        data['metro'] = None
 
-    # TODO 数据存储
+    # 数据转换
+    # 提取户型中的室数
+    if 'house_type' in data:
+        data['house_type'] = (data['house_type'].split('室')[0], data['house_type'])
 
-    print(data)
-    pass
+    # 数据存储（写入CSV文件，文件按日期生成）
+    with open(r'../.data/zufang-{}.csv'.format(datetime.date.today()),
+              'a', encoding='utf-8', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(data.values())
 
 
 def start():
@@ -143,9 +156,13 @@ if __name__ == '__main__':
 
     # # 测试详情页解析器
     # url = 'https://sh.lianjia.com/zufang/107100478683.html'
+    # url = 'https://sh.lianjia.com/zufang/107100236486.html'
     # html = download(url)
     # data = parse_item_page(html, url)
-    # print(data)
+    # # print(data)
+    #
+    # # 测试数据处理器
+    # process(data)
 
     # 启动爬虫
     start()
