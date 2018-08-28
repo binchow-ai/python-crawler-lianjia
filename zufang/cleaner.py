@@ -13,7 +13,7 @@ def clean(path):
     reader = pd.read_csv(path,
                          header=0,
                          index_col=0,
-                         na_values=['NULL', 'None', 'N/A'],
+                         na_values=['NULL', 'None', 'N/A', 'NA'],
                          names=['title', 'selling_point', 'price', 'area', 'house_type', 'floor', 'towards', 'metro',
                                 'housing_estate',
                                 'housing_estate_link', 'location', 'publish_at', 'broker', 'broker_homepage', 'number'],
@@ -30,20 +30,20 @@ def clean(path):
         # chunk.dropna(subset=['price', 'metro', 'selling_point'], inplace=True)
 
         # 将清洗过的数据保存下来（避免传输，可能整个数据文件会很大）
-        save(chunk)
+        save(chunk, path.replace('.csv', '-clean.csv'))
 
 
-def save(chunk):
+def save(chunk, target_path):
     """
     保存清洗过的数据
     :param chunk:
+    :param target_path:
     :return:
     """
 
-    # 写入时以追加方式写入
-    chunk.to_csv(r'../.data/zufang-{}-clean.csv'.format(datetime.date.today()),
-                 index=False, header=False, mode='a')
+    # 写入时以追加方式写入（注意：index不能为False，否则将导致少写入第一列）
+    chunk.to_csv(target_path, index=True, header=False, mode='a')
 
 
 if __name__ == '__main__':
-    clean(r'../.data/zufang-2018-08-27.csv')
+    clean(r'../.data/zufang-{}.csv'.format(datetime.date.today()))
