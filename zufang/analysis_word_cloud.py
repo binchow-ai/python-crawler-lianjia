@@ -1,10 +1,9 @@
 import datetime
 
 import jieba
+import pandas as pd
 from jieba import analyse
 from matplotlib import pyplot
-from pandas import DataFrame
-import pandas as pd
 from wordcloud import WordCloud
 
 data_path = r'../.data/zufang-{}-clean.csv'.format(datetime.date.today())

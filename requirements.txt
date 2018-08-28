@@ -1,0 +1,6 @@
+wordcloud
+matplotlib
+jieba
+pandas
+pyquery
+requests
