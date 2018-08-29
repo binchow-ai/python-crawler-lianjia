@@ -27,7 +27,7 @@ today = datetime.date.today()
 
 # 日志配置
 logging.basicConfig(level=logging.INFO,
-                    format='%(process)d - %(asctime)s - %(levelname)s - %(message)s')
+                    format='%(asctime)s - %(process)05d - %(levelname)s - %(message)s')
 
 
 def init():
